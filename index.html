@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The River Rescue | Wild Adventure</title>
+  <style>
+    :root {
+      --forest: #124c3a;
+      --forest-2: #0a392d;
+      --leaf: #2f8d50;
+      --sun: #f5ad28;
+      --cream: #fff7da;
+      --ink: #163b31;
+      --sky: #8ee6e8;
+      --white: #fffef8;
+      --shadow: 0 22px 60px rgba(5, 49, 38, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,.55), transparent 24%),
+        linear-gradient(145deg, #bdf2dc 0%, var(--sky) 45%, #f9dd82 100%);
+      overflow-x: hidden;
+    }
+
+    button, a { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible { outline: 4px solid #fff; outline-offset: 3px; }
+
+    .shell {
+      min-height: 100vh;
+      padding: clamp(12px, 2vw, 26px);
+      display: grid;
+      place-items: center;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: "";
+      position: fixed;
+      width: 380px;
+      height: 380px;
+      border-radius: 46% 54% 60% 40%;
+      background: rgba(24, 120, 71, .24);
+      z-index: -1;
+      transform: rotate(28deg);
+    }
+    .shell::before { left: -170px; bottom: -130px; }
+    .shell::after { right: -170px; top: -150px; }
+
+    .storybook {
+      width: min(1180px, 100%);
+      min-height: min(720px, calc(100vh - 40px));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border: 8px solid var(--forest);
+      border-radius: 30px;
+      overflow: hidden;
+      background: var(--cream);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      min-height: 72px;
+      padding: 10px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      background: linear-gradient(90deg, var(--forest-2), var(--forest));
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .badge {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      color: var(--forest);
+      background: var(--sun);
+      font-size: 25px;
+      border: 3px solid #ffe7a5;
+    }
+    .brand strong { display: block; font-size: clamp(18px, 2.3vw, 28px); line-height: 1; }
+    .brand span { display: block; margin-top: 4px; opacity: .85; font-size: 13px; }
+
+    .top-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 2px solid rgba(255,255,255,.42);
+      border-radius: 13px;
+      color: #fff;
+      background: rgba(255,255,255,.12);
+      font-weight: 800;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.22); }
+
+    .stage { position: relative; min-height: 0; background: #dff4e4; }
+    .page {
+      min-height: 560px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(310px, .9fr);
+      animation: pageIn .34s ease both;
+    }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px) scale(.993); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .scene {
+      min-height: 560px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      box-shadow: inset -34px 0 52px rgba(10,57,45,.15);
+      pointer-events: none;
+    }
+
+    .story-panel {
+      padding: clamp(24px, 3.5vw, 48px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        linear-gradient(rgba(255,247,218,.96), rgba(255,247,218,.96)),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(18,76,58,.08) 31px 33px);
+      border-left: 6px solid var(--sun);
+    }
+    .chapter {
+      margin: 0 0 9px;
+      color: #c9780b;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    h1, h2 { margin: 0; color: var(--forest-2); }
+    h1 { font-size: clamp(38px, 5vw, 70px); line-height: .96; }
+    h2 { font-size: clamp(28px, 3.3vw, 46px); line-height: 1.06; }
+    .story-text {
+      margin: 22px 0 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(20px, 2.15vw, 29px);
+      line-height: 1.55;
+    }
+    .focus-word { font-weight: 900; }
+    .focus-strength { color: #1769aa; }
+    .focus-opinion { color: #7c3aed; }
+    .focus-reason { color: #c15f00; }
+    .focus-evidence { color: #087f5b; }
+    .frame .focus-opinion { color: #e9d5ff; }
+    .frame .focus-reason { color: #fde68a; }
+    .frame .focus-evidence { color: #86efac; }
+
+    .listen-btn {
+      margin-top: 26px;
+      align-self: flex-start;
+      min-height: 48px;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 15px;
+      color: #fff;
+      background: var(--forest);
+      font-weight: 900;
+      box-shadow: 0 8px 0 #082f25;
+    }
+    .listen-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #082f25; }
+
+    .cover-page {
+      min-height: 560px;
+      display: grid;
+      place-items: center;
+      padding: 44px 24px;
+      text-align: center;
+      color: #fff;
+      background-position: center;
+      background-size: cover;
+      position: relative;
+    }
+    .cover-page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(5,49,38,.82), rgba(5,49,38,.18));
+    }
+    .cover-card {
+      width: min(760px, 92%);
+      position: relative;
+      padding: clamp(30px, 5vw, 62px);
+      border-radius: 30px;
+      background: rgba(9, 63, 46, .87);
+      border: 4px solid rgba(255,255,255,.55);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
+    .cover-card .eyebrow { color: #ffe08a; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .cover-card h1 { margin-top: 12px; color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,.2); }
+    .cover-card p { margin: 20px auto 0; max-width: 620px; font-size: clamp(18px, 2vw, 25px); line-height: 1.45; }
+    .start-btn {
+      margin-top: 30px;
+      min-height: 54px;
+      padding: 12px 28px;
+      border: 0;
+      border-radius: 17px;
+      color: var(--forest-2);
+      background: var(--sun);
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 8px 0 #b76b07;
+    }
+
+    .thinking-page {
+      min-height: 560px;
+      padding: clamp(26px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: 1fr .9fr;
+      align-items: center;
+      gap: 34px;
+      background: linear-gradient(135deg, #dff4e4, #fff1ba);
+    }
+    .thinking-image { width: 100%; border-radius: 24px; border: 6px solid #fff; box-shadow: var(--shadow); }
+    .prompt-card { padding: 28px; border-radius: 24px; background: #fffdf1; border: 4px solid var(--sun); box-shadow: var(--shadow); }
+    .prompt-card p { font-size: clamp(18px, 2vw, 25px); line-height: 1.45; }
+    .frame {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 16px;
+      color: #fff;
+      background: var(--forest);
+      font-size: clamp(17px, 1.7vw, 22px);
+      line-height: 1.5;
+    }
+    .figjam-btn {
+      display: inline-flex;
+      margin-top: 18px;
+      min-height: 52px;
+      padding: 12px 22px;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 16px;
+      color: var(--forest-2);
+      background: var(--sun);
+      font-weight: 900;
+      text-decoration: none;
+      box-shadow: 0 7px 0 #bd730b;
+    }
+
+    .controls {
+      min-height: 74px;
+      padding: 11px 18px;
+      display: grid;
+      grid-template-columns: 120px 1fr 120px;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      background: var(--forest-2);
+    }
+    .nav-btn {
+      min-height: 48px;
+      border: 2px solid rgba(255,255,255,.5);
+      border-radius: 14px;
+      color: #fff;
+      background: rgba(255,255,255,.1);
+      font-weight: 900;
+    }
+    .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+    .nav-btn:disabled { opacity: .32; cursor: not-allowed; }
+    .progress-wrap { text-align: center; }
+    .counter { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 800; }
+    .progress { height: 10px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.2); }
+    .progress > span { display: block; height: 100%; border-radius: inherit; background: var(--sun); transition: width .25s ease; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 18px;
+      border-radius: 13px;
+      color: #fff;
+      background: #163b31;
+      transition: .25s ease;
+      z-index: 20;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 820px) {
+      .storybook { min-height: calc(100vh - 20px); }
+      .page { grid-template-columns: 1fr; }
+      .scene { min-height: 46vh; }
+      .story-panel { border-left: 0; border-top: 6px solid var(--sun); }
+      .thinking-page { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 92px 1fr 92px; }
+      .icon-btn .wide { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="storybook" aria-label="Interactive digital storybook">
+      <header class="topbar">
+        <div class="brand">
+          <div class="badge" aria-hidden="true">🐾</div>
+          <div>
+            <strong>Wild Adventure</strong>
+            <span>Digital Short Story</span>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="stopAudio" type="button" title="Stop reading">⏹ <span class="wide">Stop</span></button>
+          <button class="icon-btn" id="fullscreen" type="button" title="Open fullscreen">⛶ <span class="wide">Fullscreen</span></button>
+        </div>
+      </header>
+
+      <div class="stage" id="stage" aria-live="polite"></div>
+
+      <footer class="controls">
+        <button class="nav-btn" id="backBtn" type="button">← Back</button>
+        <div class="progress-wrap">
+          <span class="counter" id="counter">Page 1 of 6</span>
+          <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        </div>
+        <button class="nav-btn" id="nextBtn" type="button">Next →</button>
+      </footer>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const FIGJAM_URL = "https://www.figma.com/board/0juhQN87HUcLcWStXf0N2m/The-River-Rescue-%E2%80%93-Story-Opinion-Board?t=l9WL4bCzfYS7KtCc-1";
+
+    const pages = [
+      {
+        type: "cover",
+        image: "assets/scene-4.webp",
+        title: "The River Rescue",
+        subtitle: "Read the story and notice how each animal uses a special strength to help a friend."
+      },
+      {
+        type: "story",
+        image: "assets/scene-1.webp",
+        chapter: "Part 1 · The Broken Bridge",
+        title: "Milo Needs Help",
+        html: `After a night of heavy rain, the river rushed through Emerald Forest. The little wooden bridge broke apart. Milo, a baby monkey, was <span class="focus-word focus-evidence">trapped</span> on the other side.`
+      },
+      {
+        type: "story",
+        image: "assets/scene-2.webp",
+        chapter: "Part 2 · A Clever Plan",
+        title: "Gina Sees a Safe Way",
+        html: `Gina the giraffe stretched her <span class="focus-word focus-strength">long neck</span> above the trees. She saw a <span class="focus-word focus-evidence">safe, shallow</span> part of the river. Cici the cheetah ran <span class="focus-word focus-strength">quickly</span> to call Ella the elephant.`
+      },
+      {
+        type: "story",
+        image: "assets/scene-3.webp",
+        chapter: "Part 3 · Working Together",
+        title: "Ella Builds a Bridge",
+        html: `Ella was <span class="focus-word focus-strength">strong</span> and <span class="focus-word focus-strength">kind</span>. She pushed a fallen log across the shallow water. Gina held the branches <span class="focus-word focus-evidence">steady</span>, while Cici encouraged Milo to move <span class="focus-word focus-strength">carefully</span>.`
+      },
+      {
+        type: "story",
+        image: "assets/scene-4.webp",
+        chapter: "Part 4 · Safe at Last",
+        title: "The Rescue Team",
+        html: `Milo crossed the log safely. “Thank you!” he said. The animals smiled <span class="focus-word focus-reason">because</span> each friend had used a <span class="focus-word focus-strength">special strength</span> to help. <span class="focus-word focus-evidence">Together</span>, they made the best rescue team.`
+      },
+      {
+        type: "thinking",
+        image: "assets/scene-4.webp",
+        title: "Think Before FigJam",
+        question: `Which animal helped Milo the <span class="focus-word focus-opinion">most</span>? Give one <span class="focus-word focus-reason">reason</span> and one <span class="focus-word focus-evidence">detail from the story</span>.`
+      }
+    ];
+
+    let current = 0;
+    const stage = document.getElementById("stage");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const counter = document.getElementById("counter");
+    const progressBar = document.getElementById("progressBar");
+    const toast = document.getElementById("toast");
+
+    function plainText(html) {
+      const node = document.createElement("div");
+      node.innerHTML = html;
+      return node.textContent || "";
+    }
+
+    function speakCurrent() {
+      if (!("speechSynthesis" in window)) {
+        showToast("Read-aloud is not supported on this device.");
+        return;
+      }
+      speechSynthesis.cancel();
+      const p = pages[current];
+      let text = "";
+      if (p.type === "cover") text = `${p.title}. ${p.subtitle}`;
+      if (p.type === "story") text = `${p.title}. ${plainText(p.html)}`;
+      if (p.type === "thinking") text = `${p.title}. ${plainText(p.question)}`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-GB";
+      utterance.rate = .86;
+      utterance.pitch = 1.02;
+      speechSynthesis.speak(utterance);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    function figJamAction(event) {
+      if (!FIGJAM_URL) {
+        event.preventDefault();
+        showToast("Teacher: add the FigJam pupil link in the HTML file first.");
+      }
+    }
+
+    function render() {
+      if ("speechSynthesis" in window) speechSynthesis.cancel();
+      const p = pages[current];
+
+      if (p.type === "cover") {
+        stage.innerHTML = `
+          <article class="cover-page" style="background-image:url('${p.image}')">
+            <div class="cover-card">
+              <div class="eyebrow">Wild Adventure Story Mission</div>
+              <h1>${p.title}</h1>
+              <p>${p.subtitle}</p>
+              <button class="start-btn" type="button" data-next>Start Reading →</button>
+            </div>
+          </article>`;
+      } else if (p.type === "story") {
+        stage.innerHTML = `
+          <article class="page">
+            <div class="scene" role="img" aria-label="Illustration for ${p.title}" style="background-image:url('${p.image}')"></div>
+            <div class="story-panel">
+              <p class="chapter">${p.chapter}</p>
+              <h2>${p.title}</h2>
+              <p class="story-text">${p.html}</p>
+              <button class="listen-btn" type="button" data-listen>🔊 Listen to this page</button>
+            </div>
+          </article>`;
+      } else {
+        const href = FIGJAM_URL || "#";
+        stage.innerHTML = `
+          <article class="thinking-page">
+            <img class="thinking-image" src="${p.image}" alt="The animal rescue team celebrating together" />
+            <div class="prompt-card">
+              <p class="chapter">Story Opinion Mission</p>
+              <h2>${p.title}</h2>
+              <p><strong>${p.question}</strong></p>
+              <div class="frame"><span class="focus-word focus-opinion">I think</span> __________ helped Milo the most <span class="focus-word focus-reason">because</span> __________.<br><span class="focus-word focus-evidence">In the story</span>, __________.</div>
+              <button class="listen-btn" type="button" data-listen>🔊 Listen to the question</button><br>
+              <a class="figjam-btn" href="${href}" target="_blank" rel="noopener" data-figjam>Continue to FigJam →</a>
+            </div>
+          </article>`;
+      }
+
+      const listen = stage.querySelector("[data-listen]");
+      if (listen) listen.addEventListener("click", speakCurrent);
+      const start = stage.querySelector("[data-next]");
+      if (start) start.addEventListener("click", () => goTo(current + 1));
+      const figjam = stage.querySelector("[data-figjam]");
+      if (figjam) figjam.addEventListener("click", figJamAction);
+
+      backBtn.disabled = current === 0;
+      nextBtn.disabled = current === pages.length - 1;
+      nextBtn.textContent = current === pages.length - 2 ? "Think →" : "Next →";
+      counter.textContent = `Page ${current + 1} of ${pages.length}`;
+      progressBar.style.width = `${((current + 1) / pages.length) * 100}%`;
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(index, pages.length - 1));
+      render();
+    }
+
+    backBtn.addEventListener("click", () => goTo(current - 1));
+    nextBtn.addEventListener("click", () => goTo(current + 1));
+    document.getElementById("stopAudio").addEventListener("click", () => {
+      if ("speechSynthesis" in window) speechSynthesis.cancel();
+      showToast("Read-aloud stopped.");
+    });
+    document.getElementById("fullscreen").addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        else if (document.exitFullscreen) await document.exitFullscreen();
+      } catch {
+        window.open(location.href, "_blank", "noopener");
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "ArrowRight") goTo(current + 1);
+      if (event.key === "ArrowLeft") goTo(current - 1);
+    });
+
+    render();
+  </script>
+</body>
+</html>
