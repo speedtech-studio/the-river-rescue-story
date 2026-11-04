@@ -121,9 +121,17 @@
 
     .scene {
       min-height: 560px;
-      background-size: cover;
-      background-position: center;
       position: relative;
+      overflow: hidden;
+      background: #cceee0;
+    }
+    .scene-video {
+      width: 100%;
+      height: 100%;
+      min-height: 560px;
+      display: block;
+      object-fit: cover;
+      object-position: center;
     }
     .scene::after {
       content: "";
@@ -193,16 +201,27 @@
       background-position: center;
       background-size: cover;
       position: relative;
+      overflow: hidden;
+    }
+    .cover-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
     }
     .cover-page::before {
       content: "";
       position: absolute;
       inset: 0;
       background: linear-gradient(90deg, rgba(5,49,38,.82), rgba(5,49,38,.18));
+      z-index: 1;
     }
     .cover-card {
       width: min(760px, 92%);
       position: relative;
+      z-index: 2;
       padding: clamp(30px, 5vw, 62px);
       border-radius: 30px;
       background: rgba(9, 63, 46, .87);
@@ -235,7 +254,7 @@
       gap: 34px;
       background: linear-gradient(135deg, #dff4e4, #fff1ba);
     }
-    .thinking-image { width: 100%; border-radius: 24px; border: 6px solid #fff; box-shadow: var(--shadow); }
+    .thinking-media { width: 100%; border-radius: 24px; border: 6px solid #fff; box-shadow: var(--shadow); display: block; }
     .prompt-card { padding: 28px; border-radius: 24px; background: #fffdf1; border: 4px solid var(--sun); box-shadow: var(--shadow); }
     .prompt-card p { font-size: clamp(18px, 2vw, 25px); line-height: 1.45; }
     .frame {
@@ -308,6 +327,7 @@
       .storybook { min-height: calc(100vh - 20px); }
       .page { grid-template-columns: 1fr; }
       .scene { min-height: 46vh; }
+      .scene-video { min-height: 46vh; }
       .story-panel { border-left: 0; border-top: 6px solid var(--sun); }
       .thinking-page { grid-template-columns: 1fr; }
       .controls { grid-template-columns: 92px 1fr 92px; }
@@ -354,12 +374,14 @@
       {
         type: "cover",
         image: "assets/scene-4.webp",
+        video: "assets/part-4-safe-at-last.mp4",
         title: "The River Rescue",
         subtitle: "Read the story and notice how each animal uses a special strength to help a friend."
       },
       {
         type: "story",
         image: "assets/scene-1.webp",
+        video: "assets/part-1-broken-bridge.mp4",
         chapter: "Part 1 · The Broken Bridge",
         title: "Milo Needs Help",
         html: `After a night of heavy rain, the river rushed through Emerald Forest. The little wooden bridge broke apart. Milo, a baby monkey, was <span class="focus-word focus-evidence">trapped</span> on the other side.`
@@ -367,6 +389,7 @@
       {
         type: "story",
         image: "assets/scene-2.webp",
+        video: "assets/part-2-clever-plan.mp4",
         chapter: "Part 2 · A Clever Plan",
         title: "Gina Sees a Safe Way",
         html: `Gina the giraffe stretched her <span class="focus-word focus-strength">long neck</span> above the trees. She saw a <span class="focus-word focus-evidence">safe, shallow</span> part of the river. Cici the cheetah ran <span class="focus-word focus-strength">quickly</span> to call Ella the elephant.`
@@ -374,6 +397,7 @@
       {
         type: "story",
         image: "assets/scene-3.webp",
+        video: "assets/part-3-working-together.mp4",
         chapter: "Part 3 · Working Together",
         title: "Ella Builds a Bridge",
         html: `Ella was <span class="focus-word focus-strength">strong</span> and <span class="focus-word focus-strength">kind</span>. She pushed a fallen log across the shallow water. Gina held the branches <span class="focus-word focus-evidence">steady</span>, while Cici encouraged Milo to move <span class="focus-word focus-strength">carefully</span>.`
@@ -381,6 +405,7 @@
       {
         type: "story",
         image: "assets/scene-4.webp",
+        video: "assets/part-4-safe-at-last.mp4",
         chapter: "Part 4 · Safe at Last",
         title: "The Rescue Team",
         html: `Milo crossed the log safely. “Thank you!” he said. The animals smiled <span class="focus-word focus-reason">because</span> each friend had used a <span class="focus-word focus-strength">special strength</span> to help. <span class="focus-word focus-evidence">Together</span>, they made the best rescue team.`
@@ -388,6 +413,7 @@
       {
         type: "thinking",
         image: "assets/scene-4.webp",
+        video: "assets/part-4-safe-at-last.mp4",
         title: "Think Before FigJam",
         question: `Which animal helped Milo the <span class="focus-word focus-opinion">most</span>? Give one <span class="focus-word focus-reason">reason</span> and one <span class="focus-word focus-evidence">detail from the story</span>.`
       }
@@ -441,11 +467,15 @@
 
     function render() {
       if ("speechSynthesis" in window) speechSynthesis.cancel();
+      stage.querySelectorAll("video").forEach(video => video.pause());
       const p = pages[current];
 
       if (p.type === "cover") {
         stage.innerHTML = `
           <article class="cover-page" style="background-image:url('${p.image}')">
+            <video class="cover-video" autoplay muted loop playsinline preload="auto" poster="${p.image}" aria-label="Animated view of the rescue team">
+              <source src="${p.video}" type="video/mp4">
+            </video>
             <div class="cover-card">
               <div class="eyebrow">Wild Adventure Story Mission</div>
               <h1>${p.title}</h1>
@@ -456,7 +486,11 @@
       } else if (p.type === "story") {
         stage.innerHTML = `
           <article class="page">
-            <div class="scene" role="img" aria-label="Illustration for ${p.title}" style="background-image:url('${p.image}')"></div>
+            <div class="scene">
+              <video class="scene-video" autoplay muted loop playsinline preload="auto" poster="${p.image}" aria-label="Animated scene for ${p.title}">
+                <source src="${p.video}" type="video/mp4">
+              </video>
+            </div>
             <div class="story-panel">
               <p class="chapter">${p.chapter}</p>
               <h2>${p.title}</h2>
@@ -468,7 +502,9 @@
         const href = FIGJAM_URL || "#";
         stage.innerHTML = `
           <article class="thinking-page">
-            <img class="thinking-image" src="${p.image}" alt="The animal rescue team celebrating together" />
+            <video class="thinking-media" autoplay muted loop playsinline preload="auto" poster="${p.image}" aria-label="The animal rescue team celebrating together">
+              <source src="${p.video}" type="video/mp4">
+            </video>
             <div class="prompt-card">
               <p class="chapter">Story Opinion Mission</p>
               <h2>${p.title}</h2>
@@ -486,6 +522,7 @@
       if (start) start.addEventListener("click", () => goTo(current + 1));
       const figjam = stage.querySelector("[data-figjam]");
       if (figjam) figjam.addEventListener("click", figJamAction);
+      stage.querySelectorAll("video").forEach(video => video.play().catch(() => {}));
 
       backBtn.disabled = current === 0;
       nextBtn.disabled = current === pages.length - 1;
